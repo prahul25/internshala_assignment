@@ -2,6 +2,7 @@
 
 import Link from 'next/dist/client/link';
 import { useState } from 'react';
+import ThemeToggle from './ThemeToggle';
 
 const navLinks = [
   { label: 'Internships', href: '#', active: true },
@@ -37,7 +38,8 @@ export default function Navbar() {
           </ul>
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle />
           <button className="text-sm font-semibold text-text-primary px-4 py-2 rounded-lg hover:bg-ghost transition-colors duration-200">
             Login
           </button>
@@ -84,6 +86,9 @@ export default function Navbar() {
               </a>
             ))}
             <hr className="border-border" />
+            <div className="flex justify-center">
+              <ThemeToggle />
+            </div>
             <button className="w-full text-sm font-semibold text-text-primary px-4 py-2.5 rounded-lg border border-border hover:bg-ghost transition-colors duration-200">
               Login
             </button>
