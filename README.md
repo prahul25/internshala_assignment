@@ -13,6 +13,9 @@ A clone of the Internshala internship listings page built with **Next.js 15**, *
 - Responsive design with mobile filter drawer
 - Staggered card animations and skeleton shimmer loading
 - Premium, PPO, WFH, Part-time, and Immediate label badges
+- Optimized images using Next.js `<Image>` component
+- Font preloading with preconnect for faster page loads
+- Cleaned up console logs for production
 
 ## Tech Stack
 

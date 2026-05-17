@@ -70,7 +70,7 @@ export default function InternshipList({ internships }: InternshipListProps) {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    let result = internships.filter((internship) => {
+    const result = internships.filter((internship) => {
       if (q) {
         const haystack = [
           internship.title,
@@ -113,50 +113,6 @@ export default function InternshipList({ internships }: InternshipListProps) {
     setSearch('');
   }, []);
 
-  const activeChips = useMemo(() => {
-    const chips: { label: string; onRemove: () => void }[] = [];
-    filters.profiles.forEach((p) =>
-      chips.push({
-        label: `Profile: ${p}`,
-        onRemove: () =>
-          setFilters((prev) => ({
-            ...prev,
-            profiles: prev.profiles.filter((x) => x !== p),
-          })),
-      })
-    );
-    filters.locations.forEach((l) =>
-      chips.push({
-        label: `Location: ${l}`,
-        onRemove: () =>
-          setFilters((prev) => ({
-            ...prev,
-            locations: prev.locations.filter((x) => x !== l),
-          })),
-      })
-    );
-    if (filters.durationMax < 12)
-      chips.push({
-        label: `Max ${filters.durationMax} month${filters.durationMax > 1 ? 's' : ''}`,
-        onRemove: () => setFilters((prev) => ({ ...prev, durationMax: 12 })),
-      });
-    if (filters.stipendMin > 0)
-      chips.push({
-        label: `₹${filters.stipendMin.toLocaleString('en-IN')}+`,
-        onRemove: () => setFilters((prev) => ({ ...prev, stipendMin: 0 })),
-      });
-    if (filters.workFromHome)
-      chips.push({
-        label: 'Work From Home',
-        onRemove: () => setFilters((prev) => ({ ...prev, workFromHome: false })),
-      });
-    if (filters.partTime)
-      chips.push({
-        label: 'Part-time',
-        onRemove: () => setFilters((prev) => ({ ...prev, partTime: false })),
-      });
-    return chips;
-  }, [filters]);
 
   useEffect(() => {
     if (mobileFilterOpen) {

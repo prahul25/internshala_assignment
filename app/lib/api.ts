@@ -5,7 +5,6 @@ export async function fetchInternships(): Promise<Internship[]> {
     const res = await fetch('https://internshala.com/hiring/search', {
       next: { revalidate: 3600 },
     });
-    console.log('API response status:', res);
     if (!res.ok) throw new Error('API failed');
     const data = await res.json();
     const meta = data.internships_meta || {};
