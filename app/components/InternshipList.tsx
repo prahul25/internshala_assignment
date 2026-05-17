@@ -6,11 +6,12 @@ import FilterPanel from './FilterPanel';
 import InternshipCard from './InternshipCard';
 
 type SortKey = 'relevance' | 'stipend' | 'duration' | 'latest';
+type SortDir = 'asc' | 'desc';
 
 const sortOptions: { label: string; value: SortKey }[] = [
   { label: 'Relevance', value: 'relevance' },
-  { label: 'Stipend (Highest)', value: 'stipend' },
-  { label: 'Duration (Shortest)', value: 'duration' },
+  { label: 'Stipend', value: 'stipend' },
+  { label: 'Duration', value: 'duration' },
   { label: 'Latest', value: 'latest' },
 ];
 
@@ -53,6 +54,7 @@ export default function InternshipList({ internships }: InternshipListProps) {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [sort, setSort] = useState<SortKey>('relevance');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const activeFilterCount = useMemo(() => {
@@ -89,21 +91,22 @@ export default function InternshipList({ internships }: InternshipListProps) {
       return true;
     });
 
+    const dir = sortDir === 'desc' ? -1 : 1;
     result.sort((a, b) => {
       switch (sort) {
         case 'stipend':
-          return parseStipendValue(b.stipend) - parseStipendValue(a.stipend);
+          return (parseStipendValue(a.stipend) - parseStipendValue(b.stipend)) * dir;
         case 'duration':
-          return parseDurationMonths(a.duration) - parseDurationMonths(b.duration);
+          return (parseDurationMonths(a.duration) - parseDurationMonths(b.duration)) * dir;
         case 'latest':
-          return parsePostedDate(b.posted_on) - parsePostedDate(a.posted_on);
+          return (parsePostedDate(a.posted_on) - parsePostedDate(b.posted_on)) * dir;
         default:
           return 0;
       }
     });
 
     return result;
-  }, [internships, search, filters, sort]);
+  }, [internships, search, filters, sort, sortDir]);
 
   const clearAll = useCallback(() => {
     setFilters({ ...defaultFilters });
@@ -210,7 +213,12 @@ export default function InternshipList({ internships }: InternshipListProps) {
           </button>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value as SortKey)}
+            onChange={(e) => {
+              const val = e.target.value as SortKey;
+              setSort(val);
+              if (val === 'stipend') setSortDir('desc');
+              else if (val === 'duration') setSortDir('asc');
+            }}
             className="text-sm font-medium text-text-primary bg-surface border border-border rounded-lg px-3 py-2 pr-8 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-light"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9ab0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
@@ -221,9 +229,43 @@ export default function InternshipList({ internships }: InternshipListProps) {
             {sortOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
+                {opt.value === 'stipend' && sort === 'stipend'
+                  ? sortDir === 'desc' ? ' (High-Low)' : ' (Low-High)'
+                  : ''}
+                {opt.value === 'duration' && sort === 'duration'
+                  ? sortDir === 'asc' ? ' (Short-Long)' : ' (Long-Short)'
+                  : ''}
+                {opt.value === 'latest' && sort === 'latest'
+                  ? sortDir === 'desc' ? ' (Newest)' : ' (Oldest)'
+                  : ''}
               </option>
             ))}
           </select>
+          {(sort === 'stipend' || sort === 'duration' || sort === 'latest') && (
+            <button
+              onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
+              className="flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-surface hover:bg-ghost transition-colors text-text-tertiary hover:text-text-primary"
+              aria-label={`Sort ${sortDir === 'asc' ? 'descending' : 'ascending'}`}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                {sortDir === 'asc' ? (
+                  <>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                  </>
+                ) : (
+                  <>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                  </>
+                )}
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
