@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
 import type { Internship } from '../types/internship';
 
 const brandColors: Record<string, string> = {
@@ -16,11 +20,13 @@ function getInitialColor(company: string): string {
 }
 
 function getInitials(company: string): string {
-  return company
-    .split(' ')
+  const clean = company.replace(/\(.*?\)/g, '').trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return parts
+    .slice(0, 2)
     .map((w) => w[0])
     .join('')
-    .slice(0, 2)
     .toUpperCase();
 }
 
@@ -54,6 +60,9 @@ export default function InternshipCard({ internship, index }: InternshipCardProp
     url,
   } = internship;
 
+  const [imgError, setImgError] = useState(false);
+  const showInitials = !company_logo || imgError;
+
   return (
     <article
       className="bg-surface rounded-xl border border-border p-5 card-hover cursor-pointer animate-fade-up"
@@ -61,19 +70,23 @@ export default function InternshipCard({ internship, index }: InternshipCardProp
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3.5 flex-1 min-w-0">
-          {company_logo ? (
-            <img
-              src={company_logo}
-              alt={`${company_name} logo`}
-              className="w-11 h-11 rounded-lg object-contain flex-shrink-0"
-            />
-          ) : (
+          {showInitials ? (
             <div
               className="w-11 h-11 rounded-lg flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
               style={{ backgroundColor: getInitialColor(company_name) }}
             >
               {getInitials(company_name)}
             </div>
+          ) : (
+            <Image
+              src={company_logo}
+              alt={`${company_name} logo`}
+              width={44}
+              height={44}
+              className="rounded-lg object-contain shrink-0"
+              unoptimized
+              onError={() => setImgError(true)}
+            />
           )}
           <div className="min-w-0">
             <h3 className="text-base font-semibold text-text-primary truncate">
@@ -84,7 +97,7 @@ export default function InternshipCard({ internship, index }: InternshipCardProp
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {is_premium && (
             <span className="text-xs font-bold text-premium bg-premium-light px-2 py-0.5 rounded flex items-center gap-1">
               <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
