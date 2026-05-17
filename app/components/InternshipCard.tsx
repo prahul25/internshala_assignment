@@ -63,16 +63,19 @@ export default function InternshipCard({ internship, index }: InternshipCardProp
   const [imgError, setImgError] = useState(false);
   const showInitials = !company_logo || imgError;
 
+  const href = `https://internshala.com/internship/detail/${url}`;
+
   return (
     <article
       className="bg-surface rounded-xl border border-border p-5 card-hover cursor-pointer animate-fade-up"
       style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
+      onClick={() => window.open(href, '_blank', 'noopener,noreferrer')}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3.5 flex-1 min-w-0">
           {showInitials ? (
             <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+              className="w-11 h-11 rounded-lg flex items-center justify-center text-sm font-bold text-white shrink-0"
               style={{ backgroundColor: getInitialColor(company_name) }}
             >
               {getInitials(company_name)}
@@ -177,13 +180,14 @@ export default function InternshipCard({ internship, index }: InternshipCardProp
           ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-border-light flex items-center justify-between">
-        <span className="text-xs text-text-tertiary">{start_date}</span>
+      <div className="mt-4 pt-4 border-t border-border-light flex justify-end">
+        
         <a
-          href={`https://internshala.com/internship/detail/${url}`}
+          href={href}
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
+          onClick={(e) => e.stopPropagation()}
         >
           Apply Now &rarr;
         </a>
