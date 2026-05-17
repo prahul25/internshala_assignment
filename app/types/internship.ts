@@ -39,8 +39,8 @@ export interface Internship {
 }
 
 export interface Filters {
-  profile: string;
-  location: string;
+  profiles: string[];
+  locations: string[];
   durationMax: number;
   stipendMin: number;
   workFromHome: boolean;

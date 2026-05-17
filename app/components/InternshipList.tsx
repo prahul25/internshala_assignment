@@ -37,8 +37,8 @@ function parsePostedDate(posted_on: string): number {
 }
 
 const defaultFilters: Filters = {
-  profile: '',
-  location: '',
+  profiles: [],
+  locations: [],
   durationMax: 12,
   stipendMin: 0,
   workFromHome: false,
@@ -57,8 +57,8 @@ export default function InternshipList({ internships }: InternshipListProps) {
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
-    if (filters.profile) count++;
-    if (filters.location) count++;
+    if (filters.profiles.length) count++;
+    if (filters.locations.length) count++;
     if (filters.durationMax < 12) count++;
     if (filters.stipendMin > 0) count++;
     if (filters.workFromHome) count++;
@@ -80,8 +80,8 @@ export default function InternshipList({ internships }: InternshipListProps) {
           .toLowerCase();
         if (!haystack.includes(q)) return false;
       }
-      if (filters.profile && internship.profile_name !== filters.profile) return false;
-      if (filters.location && !internship.location_names.includes(filters.location)) return false;
+      if (filters.profiles.length && !filters.profiles.includes(internship.profile_name)) return false;
+      if (filters.locations.length && !filters.locations.some((l) => internship.location_names.includes(l))) return false;
       if (parseDurationMonths(internship.duration) > filters.durationMax) return false;
       if (parseStipendValue(internship.stipend) < filters.stipendMin) return false;
       if (filters.workFromHome && !internship.work_from_home) return false;
@@ -106,22 +106,32 @@ export default function InternshipList({ internships }: InternshipListProps) {
   }, [internships, search, filters, sort]);
 
   const clearAll = useCallback(() => {
-    setFilters(defaultFilters);
+    setFilters({ ...defaultFilters });
     setSearch('');
   }, []);
 
   const activeChips = useMemo(() => {
     const chips: { label: string; onRemove: () => void }[] = [];
-    if (filters.profile)
+    filters.profiles.forEach((p) =>
       chips.push({
-        label: `Profile: ${filters.profile}`,
-        onRemove: () => setFilters((prev) => ({ ...prev, profile: '' })),
-      });
-    if (filters.location)
+        label: `Profile: ${p}`,
+        onRemove: () =>
+          setFilters((prev) => ({
+            ...prev,
+            profiles: prev.profiles.filter((x) => x !== p),
+          })),
+      })
+    );
+    filters.locations.forEach((l) =>
       chips.push({
-        label: `Location: ${filters.location}`,
-        onRemove: () => setFilters((prev) => ({ ...prev, location: '' })),
-      });
+        label: `Location: ${l}`,
+        onRemove: () =>
+          setFilters((prev) => ({
+            ...prev,
+            locations: prev.locations.filter((x) => x !== l),
+          })),
+      })
+    );
     if (filters.durationMax < 12)
       chips.push({
         label: `Max ${filters.durationMax} month${filters.durationMax > 1 ? 's' : ''}`,
@@ -230,28 +240,6 @@ export default function InternshipList({ internships }: InternshipListProps) {
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          {/* Active Filter Chips */}
-          {activeChips.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 mb-4 animate-slide-down">
-              {activeChips.map((chip) => (
-                <button
-                  key={chip.label}
-                  onClick={chip.onRemove}
-                  className="filter-chip"
-                >
-                  {chip.label}
-                  <span className="filter-chip-remove">&times;</span>
-                </button>
-              ))}
-              <button
-                onClick={clearAll}
-                className="text-xs font-semibold text-text-tertiary hover:text-error transition-colors ml-1"
-              >
-                Clear all
-              </button>
-            </div>
-          )}
-
           {/* Result Count */}
           <p className="text-sm text-text-secondary mb-4">
             Showing{' '}

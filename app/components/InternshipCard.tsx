@@ -63,7 +63,7 @@ export default function InternshipCard({ internship, index }: InternshipCardProp
   const [imgError, setImgError] = useState(false);
   const showInitials = !company_logo || imgError;
 
-  const href = `https://internshala.com/internship/detail/${url}`;
+  const href = `https://internshala.com/internship/${url}`;
 
   return (
     <article

@@ -45,21 +45,37 @@ export default function FilterPanel({
 
   const filteredProfiles = useMemo(
     () =>
-      profiles.filter((p) =>
-        p.toLowerCase().includes(profileSearch.toLowerCase())
+      profiles.filter(
+        (p) =>
+          !filters.profiles.includes(p) &&
+          p.toLowerCase().includes(profileSearch.toLowerCase())
       ),
-    [profileSearch]
+    [filters.profiles, profileSearch]
   );
 
   const filteredLocations = useMemo(
     () =>
-      locations.filter((l) =>
-        l.toLowerCase().includes(locationSearch.toLowerCase())
+      locations.filter(
+        (l) =>
+          !filters.locations.includes(l) &&
+          l.toLowerCase().includes(locationSearch.toLowerCase())
       ),
-    [locationSearch]
+    [filters.locations, locationSearch]
   );
 
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch });
+
+  function toggleArrayItem(arr: string[], item: string): string[] {
+    return arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item];
+  }
+
+  function toggleProfile(profile: string) {
+    set({ profiles: toggleArrayItem(filters.profiles, profile) });
+  }
+
+  function toggleLocation(loc: string) {
+    set({ locations: toggleArrayItem(filters.locations, loc) });
+  }
 
   return (
     <aside className="w-full lg:w-72 flex-shrink-0">
@@ -87,33 +103,41 @@ export default function FilterPanel({
 
         {/* Profile */}
         <CollapsibleSection title="Profile" defaultOpen>
-          <div className="relative">
+          <div className="relative flex flex-wrap gap-1.5 p-2 border-2 border-border rounded-md bg-surface focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-primary-light)] transition-all">
+            {filters.profiles.map((p) => (
+              <span key={p} className="filter-chip !text-xs !py-0.5 !px-2">
+                {p}
+                <button
+                  onClick={() => toggleProfile(p)}
+                  className="filter-chip-remove"
+                  type="button"
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
             <input
               type="text"
-              placeholder="Search profiles..."
+              placeholder={filters.profiles.length ? '' : 'Search profiles...'}
               value={profileSearch}
               onChange={(e) => setProfileSearch(e.target.value)}
-              className="search-input !pl-8 !py-1.5 !text-sm"
+              className="flex-1 min-w-[100px] border-none outline-none text-sm bg-transparent py-0.5 placeholder:text-text-tertiary"
             />
-            <svg className="search-icon !left-2.5 w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
           </div>
           <div className="mt-2 space-y-1 max-h-48 overflow-y-auto">
             {filteredProfiles.map((profile) => (
               <label
                 key={profile}
                 className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm transition-colors ${
-                  filters.profile === profile
+                  filters.profiles.includes(profile)
                     ? 'bg-primary-light text-primary font-semibold'
                     : 'text-text-secondary hover:bg-ghost'
                 }`}
               >
                 <input
-                  type="radio"
-                  name="profile"
-                  checked={filters.profile === profile}
-                  onChange={() => set({ profile })}
+                  type="checkbox"
+                  checked={filters.profiles.includes(profile)}
+                  onChange={() => toggleProfile(profile)}
                   className="accent-primary"
                 />
                 {profile}
@@ -127,33 +151,41 @@ export default function FilterPanel({
 
         {/* Location */}
         <CollapsibleSection title="Location" defaultOpen>
-          <div className="relative">
+          <div className="relative flex flex-wrap gap-1.5 p-2 border-2 border-border rounded-md bg-surface focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-primary-light)] transition-all">
+            {filters.locations.map((l) => (
+              <span key={l} className="filter-chip !text-xs !py-0.5 !px-2">
+                {l}
+                <button
+                  onClick={() => toggleLocation(l)}
+                  className="filter-chip-remove"
+                  type="button"
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
             <input
               type="text"
-              placeholder="Search locations..."
+              placeholder={filters.locations.length ? '' : 'Search locations...'}
               value={locationSearch}
               onChange={(e) => setLocationSearch(e.target.value)}
-              className="search-input !pl-8 !py-1.5 !text-sm"
+              className="flex-1 min-w-[100px] border-none outline-none text-sm bg-transparent py-0.5 placeholder:text-text-tertiary"
             />
-            <svg className="search-icon !left-2.5 w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
           </div>
           <div className="mt-2 space-y-1 max-h-48 overflow-y-auto">
             {filteredLocations.map((loc) => (
               <label
                 key={loc}
                 className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm transition-colors ${
-                  filters.location === loc
+                  filters.locations.includes(loc)
                     ? 'bg-primary-light text-primary font-semibold'
                     : 'text-text-secondary hover:bg-ghost'
                 }`}
               >
                 <input
-                  type="radio"
-                  name="location"
-                  checked={filters.location === loc}
-                  onChange={() => set({ location: loc })}
+                  type="checkbox"
+                  checked={filters.locations.includes(loc)}
+                  onChange={() => toggleLocation(loc)}
                   className="accent-primary"
                 />
                 {loc}
